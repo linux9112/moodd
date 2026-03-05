@@ -19,18 +19,13 @@ export default function Dashboard({ user, onLogout }) {
         refreshUserData()
     }, [selectedDate, user, partnerName])
 
-    // Real-time subscription - listen to users table
+    // Real-time subscription - listen to mood_history table
     useEffect(() => {
         const channel = supabase
-            .channel('users-channel')
+            .channel('status-channel')
             .on(
                 'postgres_changes',
-                { event: 'UPDATE', schema: 'public', table: 'users' },
-                (payload) => refreshUserData()
-            )
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'users' },
+                { event: 'INSERT', schema: 'public', table: 'mood_history' },
                 (payload) => refreshUserData()
             )
             .subscribe()
@@ -43,21 +38,25 @@ export default function Dashboard({ user, onLogout }) {
     const refreshUserData = async () => {
         // Load mood:
         const { data: myData } = await supabase
-            .from("users")
+            .from("mood_history")
             .select("*")
             .eq("username", user)
-            .single()
+            .eq("date", selectedDate)
+            .order("id", { ascending: false })
+            .limit(1)
 
-        setMyStatus(myData || null)
+        setMyStatus(myData?.[0] || null)
 
         // Load partner data:
         const { data: partnerData } = await supabase
-            .from("users")
+            .from("mood_history")
             .select("*")
             .eq("username", partnerName)
-            .single()
+            .eq("date", selectedDate)
+            .order("id", { ascending: false })
+            .limit(1)
 
-        setPartnerStatus(partnerData || null)
+        setPartnerStatus(partnerData?.[0] || null)
     }
 
     const handleUpdateStatus = async (statusData) => {
@@ -105,11 +104,23 @@ export default function Dashboard({ user, onLogout }) {
                     </div>
                     <button
                         onClick={onLogout}
-                        className="text-white hover:bg-white/10 p-2 rounded-full transition-colors"
                         title="Logout"
-                        style={{ marginTop: '-4px' }}
+                        style={{
+                            background: 'rgba(255,255,255,0.15)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            color: 'white',
+                            padding: '0.6rem',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: 0,
+                            backdropFilter: 'blur(4px)',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                        }}
                     >
-                        <LogOut size={22} />
+                        <LogOut size={20} />
                     </button>
                 </div>
 

@@ -18,7 +18,9 @@ const ACTIVITIES = [
     { value: '🔴 Busy', label: 'Busy', icon: '🔴' },
     { value: '📚 Studying', label: 'Studying', icon: '📚' },
     { value: '🚶 Bahar hu', label: 'Bahar hu', icon: '🚶' },
-    { value: '🔋 Charging', label: 'Charging', icon: '🔋' },
+    {
+        value: '📱 Phone', label: 'Phone', icon: '📱'
+    },
     { value: '💤 Sleeping', label: 'Sleeping', icon: '💤' }
 ]
 

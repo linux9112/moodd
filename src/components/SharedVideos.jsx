@@ -86,9 +86,9 @@ export default function SharedVideos({ currentUser, selectedDate }) {
                 </button>
             </form>
 
-            <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1 stylish-scrollbar flex-1 justify-center">
+            <div className="flex flex-col gap-3 max-h-[250px] overflow-y-auto pr-2 stylish-scrollbar flex-1 pb-2">
                 {videos.length === 0 ? (
-                    <div className="text-center text-white/60 font-medium">
+                    <div className="text-center text-white/60 font-medium py-10 bg-white/5 rounded-2xl border border-white/10">
                         No videos shared for this date
                     </div>
                 ) : (
@@ -98,16 +98,27 @@ export default function SharedVideos({ currentUser, selectedDate }) {
                             href={vid.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="bg-white/10 hover:bg-white/20 p-3 rounded-xl border border-white/20 transition-colors flex flex-col gap-1 group block relative"
+                            className="bg-white/10 hover:bg-white/20 p-4 rounded-2xl border border-white/20 transition-all flex flex-col gap-2 group relative overflow-hidden backdrop-blur-md shadow-sm hover:shadow-md"
+                            style={{ textDecoration: 'none', wordBreak: 'break-all' }}
                         >
-                            <div className="font-semibold text-sm text-white flex items-center justify-between">
-                                <span>{vid.addedBy} shared</span>
-                                <span className="text-xs text-white/60 font-normal">{vid.date}</span>
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="font-bold text-sm text-white flex items-center gap-2">
+                                    <span className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-xs shadow-sm text-white shrink-0">
+                                        {(vid.addedby || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                    {vid.addedby || 'Someone'} shared
+                                </span>
+                                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider bg-black/20 px-2.5 py-1 rounded-full shrink-0">{vid.date}</span>
                             </div>
-                            <div className="text-blue-200 text-xs truncate underline w-full pr-6">
-                                {vid.url}
+
+                            <div className="bg-black/20 rounded-xl p-3 border border-white/5 group-hover:bg-black/30 transition-colors flex items-center gap-3">
+                                <div className="bg-blue-500/20 p-2 rounded-lg shrink-0">
+                                    <ExternalLink size={16} className="text-blue-300" />
+                                </div>
+                                <div className="text-blue-100 text-sm font-medium overflow-hidden w-full">
+                                    <p className="truncate w-full">{vid.url}</p>
+                                </div>
                             </div>
-                            <ExternalLink size={14} className="absolute right-3 top-1/2 flex -translate-y-1/2 text-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </a>
                     ))
                 )}
