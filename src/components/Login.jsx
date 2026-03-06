@@ -10,9 +10,9 @@ export default function Login({ onLogin }) {
         setError('')
 
         // Explicit hardcoded check
-        if (username === 'Dindayal' && password === 'Dindayal') {
+        if (username === 'Dindayal' && password === '9142722049') {
             onLogin('Dindayal')
-        } else if (username === 'Lakshmi' && password === 'Lakshmi') {
+        } else if (username === 'Lakshmi' && password === '6205269456') {
             onLogin('Lakshmi')
         } else {
             setError('Invalid username or password')
