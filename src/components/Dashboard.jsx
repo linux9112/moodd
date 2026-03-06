@@ -19,15 +19,45 @@ export default function Dashboard({ user, onLogout }) {
         refreshUserData()
     }, [selectedDate, user, partnerName])
 
-    // Real-time subscription - listen to mood_history table
+    // Ask for browser notification permission
     useEffect(() => {
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission()
+        }
+    }, [])
+
+    const showNotification = (message) => {
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("Friend Update", {
+                body: message,
+                icon: "/icon.png"
+            });
+        }
+    }
+
+    // Real-time subscription
+    useEffect(() => {
+        const handleStatusChange = (payload) => {
+            if (payload.new && payload.new.username && payload.new.username !== user) {
+                const shortName = payload.new.username === 'Lakshmi' ? 'L' : 'D';
+                const pronoun = payload.new.username === 'Lakshmi' ? 'her' : 'his';
+                showNotification(`🔔 ${shortName} changed ${pronoun} mood`);
+            }
+            refreshUserData()
+        }
+
+        const handleVideoChange = (payload) => {
+            if (payload.new && payload.new.addedby && payload.new.addedby !== user) {
+                const shortName = payload.new.addedby === 'Lakshmi' ? 'L' : 'D';
+                showNotification(`🔔 ${shortName} shared a video`);
+            }
+        }
+
         const channel = supabase
-            .channel('status-channel')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'mood_history' },
-                (payload) => refreshUserData()
-            )
+            .channel('realtime-updates')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mood_history' }, handleStatusChange)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mood_history' }, handleStatusChange)
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'videos' }, handleVideoChange)
             .subscribe()
 
         return () => {
@@ -60,31 +90,43 @@ export default function Dashboard({ user, onLogout }) {
     }
 
     const handleUpdateStatus = async (statusData) => {
-        // STEP 1 — Insert new history record
-        const { error: histError } = await supabase
+        const { data: existingData, error: checkError } = await supabase
             .from("mood_history")
-            .insert({
-                username: user,
-                mood: statusData.mood,
-                status: statusData.status,
-                happylevel: statusData.happyLevel,
-                date: selectedDate
-            })
-
-        if (histError) console.error('Error inserting history:', histError)
-
-        // STEP 2 — Update current status in users table
-        const { error: userError } = await supabase
-            .from("users")
-            .update({
-                mood: statusData.mood,
-                status: statusData.status,
-                happylevel: statusData.happyLevel,
-                date: selectedDate
-            })
+            .select("id")
             .eq("username", user)
+            .eq("date", selectedDate)
+            .limit(1)
 
-        if (userError) console.error('Error updating user status:', userError)
+        if (checkError) {
+            console.error('Error checking history:', checkError)
+            return
+        }
+
+        if (existingData && existingData.length > 0) {
+            const { error: updateError } = await supabase
+                .from("mood_history")
+                .update({
+                    mood: statusData.mood,
+                    status: statusData.status,
+                    happylevel: statusData.happyLevel
+                })
+                .eq("username", user)
+                .eq("date", selectedDate)
+
+            if (updateError) console.error('Error updating history:', updateError)
+        } else {
+            const { error: insertError } = await supabase
+                .from("mood_history")
+                .insert({
+                    username: user,
+                    mood: statusData.mood,
+                    status: statusData.status,
+                    happylevel: statusData.happyLevel,
+                    date: selectedDate
+                })
+
+            if (insertError) console.error('Error inserting history:', insertError)
+        }
 
         // Refresh to show newly mutated state locally just in case real-time has latency
         refreshUserData()

@@ -8,19 +8,15 @@ function App() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    // Check session storage on mount
-    const savedUser = sessionStorage.getItem('moodConnectUser')
-    if (savedUser) setUser(savedUser)
+    // Auth is purely in-memory now relative to this session
   }, [])
 
   const handleLogin = (username) => {
     setUser(username)
-    sessionStorage.setItem('moodConnectUser', username)
   }
 
   const handleLogout = () => {
     setUser(null)
-    sessionStorage.removeItem('moodConnectUser')
   }
 
   return (

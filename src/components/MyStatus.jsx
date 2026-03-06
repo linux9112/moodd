@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const MOODS = [
     { emoji: '😊', label: 'Happy' },
@@ -30,7 +30,7 @@ export default function MyStatus({ initialData, onUpdate }) {
     const [happyLevel, setHappyLevel] = useState(initialData?.happylevel ?? 50)
     const [updating, setUpdating] = useState(false)
 
-    useState(() => {
+    useEffect(() => {
         if (initialData) {
             setMood(initialData.mood || '')
             setStatus(initialData.status || '🟢 Free')
