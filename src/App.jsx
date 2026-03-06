@@ -8,15 +8,35 @@ function App() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    // Auth is purely in-memory now relative to this session
+    const sessionStr = localStorage.getItem('friends_mood_session');
+    if (sessionStr) {
+      try {
+        const sessionData = JSON.parse(sessionStr);
+        const now = Date.now();
+        const diff = now - sessionData.loginTime;
+        // 15 minutes = 15 * 60 * 1000 milliseconds
+        if (diff < 15 * 60 * 1000) {
+          setUser(sessionData.username);
+        } else {
+          localStorage.removeItem('friends_mood_session');
+        }
+      } catch (e) {
+        localStorage.removeItem('friends_mood_session');
+      }
+    }
   }, [])
 
   const handleLogin = (username) => {
     setUser(username)
+    localStorage.setItem('friends_mood_session', JSON.stringify({
+      username,
+      loginTime: Date.now()
+    }));
   }
 
   const handleLogout = () => {
     setUser(null)
+    localStorage.removeItem('friends_mood_session');
   }
 
   return (
