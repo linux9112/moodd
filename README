@@ -1,0 +1,20 @@
+# MoodConnect
+
+MoodConnect is a simple web platform that allows users to share their emotions anonymously and view how others are feeling in real-time.
+
+## Features
+- Share your mood instantly
+- View moods from other users
+- Clean and minimal UI
+- Anonymous interaction
+
+## Tech Stack
+- HTML, CSS, JavaScript
+
+## Future Improvements
+- Add authentication
+- Real-time database (Firebase)
+- Mood analytics
+
+## Purpose
+This project is built to explore how simple platforms can help people express emotions and feel connected.
